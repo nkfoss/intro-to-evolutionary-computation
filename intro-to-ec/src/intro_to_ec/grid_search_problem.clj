@@ -11,6 +11,8 @@
 (def right [1  0])
 (def all-moves [up down left right])
 
+(def goal [0 0])
+
 (defn apply-move
   "Apply a move to a given position, yielding the new position"
   [position move]

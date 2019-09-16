@@ -62,6 +62,7 @@
    the origin. The ranges specify the bounds on the grid world, and the
    `wall-set` is a (possibly empty) set of positions that can't be entered
    or crossed."
-  [min-range max-range wall-set]
+  [min-range max-range wall-set goal-pos]
   {:goal? origin-goal?
-   :make-children (partial grid-children min-range max-range wall-set)})
+   :make-children (partial grid-children min-range max-range wall-set)
+   :goal-pos goal-pos})
