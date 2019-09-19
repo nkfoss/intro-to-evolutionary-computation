@@ -6,18 +6,28 @@
   [new-states frontier visited]
   (remove (cset/union (set frontier) (set visited)) new-states))
 
+(def helper-map (pm/priority-map))
+
 (defn heuristic-distance [goal curr]
   "Finds the distance from the given node to the goal"
   (+ (Math/abs (- (get curr 0)(get goal 0)))
      (Math/abs (- (get curr 1)(get goal 1)))))
 
-(defn pair [goal child]
+(defn pair [goal child map]
   "Pairs nodes to distance from goal"
-  (pm/priority-map child (heuristic-distance goal child)))
+  (assoc map child (heuristic-distance goal child)))
+
+(defn make-p-map
+  [children goal]
+  "For child in children, make a priority map of their distance to the goal"
+  (for [child children]
+        (pair goal child helper-map)))
 
 (def heuristic-search
   {:get-next-node first
-   :add-children #(assoc %2 (for [child %1 (pair %3 child)]))})
+   :add-children #(concat (for [x (make-p-map %1 %3)]
+                          (first (first x)))
+                          %2)})
 
 (defn generate-path
   [came-from node]
@@ -31,13 +41,12 @@
    {:keys [goal? make-children goal-pos]}
    start-node max-calls]
 
-  (loop [frontier (pm/priority-map start-node (heuristic-distance goal-pos start-node))
+  (loop [frontier [start-node]
          came-from {start-node :start-node}
          num-calls 0]
 
     (println num-calls ": " frontier)
-    (println came-from)(reduce (fn [cf child] (assoc cf child current-node)) came-from kids)
-
+    (println came-from)
     (let [current-node (get-next-node frontier)]
       (cond
         (goal? current-node) (generate-path came-from current-node)
