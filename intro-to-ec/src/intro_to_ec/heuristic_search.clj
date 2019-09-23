@@ -18,16 +18,26 @@
   (assoc map child (heuristic-distance goal child)))
 
 (defn make-p-map
-  [children goal]
-  "For child in children, make a priority map of their distance to the goal"
-  (for [child children]
-        (pair goal child helper-map)))
+  [children goal map]
+  (if (not (empty? children))
+    (do
+      (pair goal
+        (first children)
+        map)
+      (make-p-map (rest children) goal map)
+      (println map))
+    map))
+
+; (defn make-p-map
+;   [children goal]
+;   "For child in children, make a priority map of their distance to the goal"
+;   (for [child children]
+;     (pair goal child helper-map)))
 
 (def heuristic-search
   {:get-next-node first
-   :add-children #(concat (for [x (make-p-map %1 %3)]
-                          (first (first x)))
-                          %2)})
+   :add-children #(concat %4 (for [x (make-p-map %1 %2 %3)]
+                               (first (first x))))})
 
 (defn generate-path
   [came-from node]
@@ -46,7 +56,7 @@
          num-calls 0]
 
     (println num-calls ": " frontier)
-    (println came-from)
+    ; (println came-from)
     (let [current-node (get-next-node frontier)]
       (cond
         (goal? current-node) (generate-path came-from current-node)
@@ -57,7 +67,8 @@
           (recur
            (add-children
             kids
-            (rest frontier)
-            goal-pos)
+            goal-pos
+            helper-map
+            (rest frontier))
            (reduce (fn [cf child] (assoc cf child current-node)) came-from kids)
            (inc num-calls)))))))
